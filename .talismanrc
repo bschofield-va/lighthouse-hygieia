@@ -1,0 +1,4 @@
+fileignoreconfig:
+- filename: .github/workflows/daedalus.yml
+  checksum: d0df9468a2530cedbcdce461207a76e92419988f755eaed77deb01fb09deb959
+version: "1.0"

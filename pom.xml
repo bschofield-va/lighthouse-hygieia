@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+  <parent>
+    <groupId>gov.va.api.health</groupId>
+    <artifactId>health-apis-parent</artifactId>
+    <version>22.0.6</version>
+    <relativePath/>
+  </parent>
+  <groupId>gov.va.api.lighthouse</groupId>
+  <artifactId>hygieia-parent</artifactId>
+  <version>0.0.1-SNAPSHOT</version>
+  <packaging>pom</packaging>
+  <properties>
+    <github.repository-name>lighthouse-hygieia</github.repository-name>
+  </properties>
+  <modules>
+    <module>dependencies</module>
+    <module>api-errors</module>
+    <!--
+    <module>api-v1</module>
+    <module>persistence</module>
+    <module>application</module>
+    <module>integration-tests</module>
+    -->
+  </modules>
+</project>
