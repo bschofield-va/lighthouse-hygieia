@@ -1,0 +1,13 @@
+open-api:
+  v1:
+    info:
+      title: Hygieia V1 API
+      version: v1
+      description: |
+        This API provides simple virus scanning interface.
+    servers: &all-servers
+      - url: "https://sandbox-api.va.gov/services/hygieia"
+        description: "VA.gov API sandbox environment."
+      - url: "https://api.va.gov/services/hygieia"
+        description: "VA.gov API production environment."
+

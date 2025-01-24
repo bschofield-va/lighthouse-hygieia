@@ -17,5 +17,5 @@ public interface ScannerV1Api extends V1Api {
   @PostMapping(
       path = {"/scanner"},
       consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-  ScanResponseV1 scan(@RequestParam("file") MultipartFile file);
+  ScanResponseV1 scan(@RequestParam(name = "file", required = true) MultipartFile file);
 }

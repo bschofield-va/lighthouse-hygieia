@@ -1,0 +1,4 @@
+application-*.yaml
+!application-h2.yaml
+!application-dev.yaml
+!application-fresnel.yaml

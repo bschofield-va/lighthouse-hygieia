@@ -1,0 +1,18 @@
+#
+# h2 profile
+# Connect to an embedded H2 database.
+# Requires application is launched special to add H2 jar to the class path, e.g.
+# java \
+#   -Dloader.path=target/dependency/h2.jar \
+#   -cp target/benefits-documents-service-1.0.37-SNAPSHOT.jar \
+#   org.springframework.boot.loader.PropertiesLauncher
+#
+spring:
+  datasource:
+    url: jdbc:h2:mem:app;DB_CLOSE_ON_EXIT=FALSE
+    username: sa
+    password:
+  jpa:
+    properties:
+      hibernate:
+        globally_quoted_identifiers: false

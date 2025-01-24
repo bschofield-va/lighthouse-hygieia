@@ -1,0 +1,7 @@
+encryption-service:
+  key: disabled
+
+hygieia:
+  admin-key: admin-key
+  internal:
+    client-keys: test-client-key
