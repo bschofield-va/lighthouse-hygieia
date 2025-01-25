@@ -7,9 +7,9 @@ import lombok.Value;
 @Value
 @Builder
 public class ClamAvOptions {
-  String host;
+  String hostname;
   int port;
-  @Builder.Default Duration timeout = Duration.ofSeconds(1);
+  @Builder.Default Duration timeout = Duration.ofSeconds(10);
 
   @Builder.Default int chunkSizeInBytes = 2048;
 }

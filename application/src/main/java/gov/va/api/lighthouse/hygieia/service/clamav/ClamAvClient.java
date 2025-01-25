@@ -104,7 +104,7 @@ public class ClamAvClient {
 
     Connection(ClamAvOptions options) throws UnknownHostException, IOException {
       this.options = options;
-      this.socket = new Socket(options.host(), options.port());
+      this.socket = new Socket(options.hostname(), options.port());
       this.toServer = new BufferedOutputStream(socket.getOutputStream());
       this.fromServer = socket.getInputStream();
       socket.setSoTimeout((int) options.timeout().toMillis());

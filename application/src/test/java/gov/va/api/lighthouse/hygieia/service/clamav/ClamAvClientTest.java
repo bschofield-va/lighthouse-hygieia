@@ -2,7 +2,6 @@ package gov.va.api.lighthouse.hygieia.service.clamav;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
-import static org.assertj.core.api.Assertions.in;
 
 import gov.va.api.health.sentinel.configurablevalues.ConfigurableValues;
 import gov.va.api.lighthouse.hygieia.service.clamav.ClamAvExceptions.ScanFailed;
@@ -43,7 +42,7 @@ class ClamAvClientTest {
     port =
         ConfigurableValues.get()
             .forPropertyName("clamav-client-test.clamav-server-port")
-            .orElse("0")
+            .orElse("3310")
             .asInteger();
     hostname =
         ConfigurableValues.get()
@@ -51,16 +50,14 @@ class ClamAvClientTest {
             .orElse("localhost")
             .asString();
     if (useMock) {
+      mockClamAv = new MockClamAv(0);
       hostname = "localhost";
-      mockClamAv = new MockClamAv(port);
-      if (port == 0) {
-        port = mockClamAv.port();
-      }
+      port = mockClamAv.port();
     }
   }
 
   private void scan(String payload) {
-    var options = ClamAvOptions.builder().host(hostname).port(port).build();
+    var options = ClamAvOptions.builder().hostname(hostname).port(port).build();
     var clamAv = ClamAvClient.create(options);
     var in = new ByteArrayInputStream(payload.getBytes(StandardCharsets.UTF_8));
     clamAv.scan(in);
