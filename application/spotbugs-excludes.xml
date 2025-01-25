@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <FindBugsFilter>
   <!--
-    The Lombok builder protects against this by not actually calling the constructor.
+    ClamAV doesn't support SSL.
   -->
   <Match>
-    <Class name="gov.va.api.lighthouse.hygieia.service.status.StatusContext"/>
-    <Bug pattern="CT_CONSTRUCTOR_THROW"/>
+    <Class name="gov.va.api.lighthouse.hygieia.service.clamav.ClamAvClient$Connection"/>
+    <Bug pattern="UNENCRYPTED_SOCKET"/>
   </Match>
 
   <!--

@@ -1,33 +1,32 @@
 package gov.va.api.lighthouse.hygieia.service.clamav;
 
+import gov.va.api.lighthouse.hygieia.service.antivirus.VirusScanner;
 import gov.va.api.lighthouse.hygieia.service.clamav.ClamAvExceptions.DataTransferAborted;
 import gov.va.api.lighthouse.hygieia.service.clamav.ClamAvExceptions.FailedToConnectToClamAvServer;
 import gov.va.api.lighthouse.hygieia.service.clamav.ClamAvExceptions.FailedToReadDataFromClamAvServer;
 import gov.va.api.lighthouse.hygieia.service.clamav.ClamAvExceptions.FailedToSendDataToClamAvServer;
-import gov.va.api.lighthouse.hygieia.service.clamav.ClamAvExceptions.ScanFailed;
-import gov.va.api.lighthouse.hygieia.service.clamav.ClamAvExceptions.VirusFound;
 import java.io.BufferedOutputStream;
 import java.io.Closeable;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.Socket;
-import java.net.UnknownHostException;
 import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
+import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.util.StreamUtils;
 
 @Slf4j
 @RequiredArgsConstructor(staticName = "create")
-public class ClamAvClient {
-  @Getter private final ClamAvOptions options;
+public class ClamAvClient implements VirusScanner {
+  @Getter private final ClamAvProperties options;
 
   private Connection createConnection() {
     try {
       return new Connection(options());
-    } catch (IOException e) {
+    } catch (Exception e) {
       throw new FailedToConnectToClamAvServer(e, options());
     }
   }
@@ -71,7 +70,8 @@ public class ClamAvClient {
          * perfectly clean... assuming ERROR continues to be the marker.
          */
         var reason = reply.replaceAll("INSTREAM ", "").replace(" ERROR", "");
-        throw ScanFailed.builder().clamServerReply(reply).reason(reason).build();
+        log.info("Reply: {}", reply);
+        throw new ScanFailed(reason);
       }
     }
 
@@ -87,14 +87,15 @@ public class ClamAvClient {
          * not be perfectly clean... assuming FOUND continues to be the marker.
          */
         var virus = reply.replaceAll("^\\w+: ", "").replace(" FOUND", "");
-        throw VirusFound.builder().clamServerReply(reply).virusName(virus).build();
+        log.info("Reply: {}", reply);
+        throw new VirusFound(virus);
       }
     }
   }
 
   private static class Connection implements AutoCloseable {
 
-    private final ClamAvOptions options;
+    private final ClamAvProperties options;
 
     private final Socket socket;
 
@@ -102,7 +103,8 @@ public class ClamAvClient {
 
     private final InputStream fromServer;
 
-    Connection(ClamAvOptions options) throws UnknownHostException, IOException {
+    @SneakyThrows
+    Connection(ClamAvProperties options) {
       this.options = options;
       this.socket = new Socket(options.hostname(), options.port());
       this.toServer = new BufferedOutputStream(socket.getOutputStream());

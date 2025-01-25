@@ -1,7 +1,7 @@
 server:
   port: 8080
-hygieia:
-  internal:
-    client-keys: disabled
 encryption-service:
   key: disabled
+clamav:
+  hostname: host.docker.internal
+  port: 3310

@@ -4,8 +4,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 
 import gov.va.api.health.sentinel.configurablevalues.ConfigurableValues;
-import gov.va.api.lighthouse.hygieia.service.clamav.ClamAvExceptions.ScanFailed;
-import gov.va.api.lighthouse.hygieia.service.clamav.ClamAvExceptions.VirusFound;
+import gov.va.api.lighthouse.hygieia.service.antivirus.VirusScanner.ScanFailed;
+import gov.va.api.lighthouse.hygieia.service.antivirus.VirusScanner.VirusFound;
 import gov.va.api.lighthouse.hygieia.service.test.MockClamAv;
 import gov.va.api.lighthouse.hygieia.service.test.MockClamAv.Interaction;
 import java.io.ByteArrayInputStream;
@@ -57,7 +57,7 @@ class ClamAvClientTest {
   }
 
   private void scan(String payload) {
-    var options = ClamAvOptions.builder().hostname(hostname).port(port).build();
+    var options = ClamAvProperties.builder().hostname(hostname).port(port).build();
     var clamAv = ClamAvClient.create(options);
     var in = new ByteArrayInputStream(payload.getBytes(StandardCharsets.UTF_8));
     clamAv.scan(in);

@@ -4,13 +4,6 @@ server:
     connection-timeout: 5s
     relaxed-query-chars: |
 
-hygieia:
-  request-dispatch:
-    url: unset
-  admin-key: unset
-  internal:
-    client-keys: unset
-
 spring:
   config:
     import:
@@ -55,6 +48,11 @@ ssl:
 encryption-service:
   key: unset
 
+clamav:
+  hostname: unset
+  port: 3310
+  timeout: 10s
+  chunkSizeInBytes: 2048
 #
 # The following removes some stack trace spam from the log files to make
 # them easier to read
