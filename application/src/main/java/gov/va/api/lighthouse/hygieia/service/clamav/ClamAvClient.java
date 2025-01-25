@@ -4,6 +4,8 @@ import gov.va.api.lighthouse.hygieia.service.clamav.ClamAvExceptions.DataTransfe
 import gov.va.api.lighthouse.hygieia.service.clamav.ClamAvExceptions.FailedToConnectToClamAvServer;
 import gov.va.api.lighthouse.hygieia.service.clamav.ClamAvExceptions.FailedToReadDataFromClamAvServer;
 import gov.va.api.lighthouse.hygieia.service.clamav.ClamAvExceptions.FailedToSendDataToClamAvServer;
+import gov.va.api.lighthouse.hygieia.service.clamav.ClamAvExceptions.ScanFailed;
+import gov.va.api.lighthouse.hygieia.service.clamav.ClamAvExceptions.VirusFound;
 import java.io.BufferedOutputStream;
 import java.io.Closeable;
 import java.io.IOException;
@@ -51,26 +53,46 @@ public class ClamAvClient {
       connection.send("zINSTREAM\0");
       connection.send(data, new byte[] {0, 0, 0, 0});
       var reply = connection.readReply();
-      // INSTREAM size limit exceeded
+      throwIfVirusFound(reply);
+      throwIfScanFailed(reply);
+      return reply;
+    }
+
+    private void throwIfScanFailed(String reply) {
       // stream: OK
-      // stream: <virus-name> FOUND
+      // INSTREAM size limit exceeded. ERROR
+      if (reply.contains("ERROR")) {
+        /*
+         * The result of virus scan errors isn't well documented by ClamAV and I do not trust it not
+         * to change slightly. For example, 'size limit exceeded' output has changed. To safely
+         * identify an error, we'll take ERROR anywhere it appears and attempt to strip away the
+         * leading command string and trailing ERROR marker to get the reason. If we the format
+         * changes, we'll still be identifying a error was detected, but the reason name may not be
+         * perfectly clean... assuming ERROR continues to be the marker.
+         */
+        var reason = reply.replaceAll("INSTREAM ", "").replace(" ERROR", "");
+        throw ScanFailed.builder().clamServerReply(reply).reason(reason).build();
+      }
+    }
+
+    private void throwIfVirusFound(String reply) {
+      // stream: virus-name FOUND
       if (reply.contains("FOUND")) {
         /*
-         * The result of virus scan isn't well documented by ClamAV and I do not trust it not change
-         * slightly. For example, 'size limit exceeded' output has changed. To safely identify a
-         * virus, we'll take FOUND anywhere it appears and attempt to strip away the leading stream
-         * identifier and trailing FOUND marker to get the virus name. If we the format changes,
-         * we'll still be identifying a virus was detected, but the virus name may not be perfectly
-         * clean... assuming FOUND continues to be the marker.
+         * The result of virus scan isn't well documented by ClamAV and I do not trust it not to
+         * change slightly. For example, 'size limit exceeded' output has changed. To safely
+         * identify a virus, we'll take FOUND anywhere it appears and attempt to strip away the
+         * leading stream identifier and trailing FOUND marker to get the virus name. If we the
+         * format changes, we'll still be identifying a virus was detected, but the virus name may
+         * not be perfectly clean... assuming FOUND continues to be the marker.
          */
         var virus = reply.replaceAll("^\\w+: ", "").replace(" FOUND", "");
+        throw VirusFound.builder().clamServerReply(reply).virusName(virus).build();
       }
-      return reply;
     }
   }
 
   private static class Connection implements AutoCloseable {
-    private static final byte[] NULL_CHARACTER_BYTES = {0, 0, 0, 0};
 
     private final ClamAvOptions options;
 
@@ -151,7 +173,7 @@ public class ClamAvClient {
           toServer.write(chunk, 0, dataBytesRead);
           reply = readReplyIfAvailable();
           if (reply != null) {
-            throw new DataTransferAborted(options, reply);
+            throw new DataTransferAborted(reply);
           }
           dataBytesRead = data.read(chunk);
         }

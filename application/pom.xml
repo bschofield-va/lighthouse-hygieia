@@ -53,6 +53,12 @@
       <groupId>gov.va.api.lighthouse</groupId>
       <artifactId>talos</artifactId>
     </dependency>
+    <dependency>
+      <groupId>gov.va.api.health</groupId>
+      <artifactId>sentinel</artifactId>
+      <version>${project.parent.version}</version>
+      <scope>test</scope>
+    </dependency>
   </dependencies>
   <profiles>
     <profile>
