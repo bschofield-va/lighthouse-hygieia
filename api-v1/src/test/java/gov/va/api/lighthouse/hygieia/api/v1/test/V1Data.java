@@ -10,4 +10,12 @@ public class V1Data {
         .data(ScanResponseV1.Data.builder().virusFound(virusFound).virusName(virusName).build())
         .build();
   }
+
+  public ScanResponseV1 cleanScanResponse() {
+    return scanResponse(false, null);
+  }
+
+  public ScanResponseV1 virusFoundScanResponse(String virusName) {
+    return scanResponse(true, virusName);
+  }
 }
