@@ -1,9 +1,17 @@
 package gov.va.api.lighthouse.hygieia.service.antivirus;
 
 import java.io.InputStream;
+import lombok.RequiredArgsConstructor;
+import lombok.Value;
 
 public interface VirusScanner {
   void scan(InputStream data);
+
+  @Value
+  @RequiredArgsConstructor(staticName = "of")
+  class ScanId {
+    String value;
+  }
 
   class VirusScanningException extends RuntimeException {
     public VirusScanningException(String message, Throwable cause) {

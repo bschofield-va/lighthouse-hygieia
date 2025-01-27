@@ -16,6 +16,8 @@
     <docker.organization>ghcr.io/department-of-veterans-affairs</docker.organization>
     <docker.baseVersion>v2-jdk17</docker.baseVersion>
     <docker.imageName>lighthouse-${project.artifactId}</docker.imageName>
+    <!-- There is so little code and quite a bit of IOException handling, 95% is hard to reach -->
+    <jacoco.coverage>0.91</jacoco.coverage>
   </properties>
   <dependencyManagement>
     <dependencies>

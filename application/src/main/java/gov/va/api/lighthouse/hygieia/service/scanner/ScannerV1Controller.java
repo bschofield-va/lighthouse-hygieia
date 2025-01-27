@@ -4,10 +4,9 @@ import gov.va.api.health.autoconfig.logging.Loggable;
 import gov.va.api.lighthouse.hygieia.api.v1.ScanResponseV1;
 import gov.va.api.lighthouse.hygieia.api.v1.ScannerV1Api;
 import gov.va.api.lighthouse.hygieia.service.antivirus.VirusScanner;
-import gov.va.api.lighthouse.hygieia.service.antivirus.VirusScanner.ScanFailed;
 import gov.va.api.lighthouse.hygieia.service.antivirus.VirusScanner.VirusFound;
-import java.io.IOException;
 import lombok.RequiredArgsConstructor;
+import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.RestController;
@@ -22,21 +21,28 @@ public class ScannerV1Controller implements ScannerV1Api {
 
   private final VirusScanner scanner;
 
+  private final ScanIdGenerator scanIdGenerator;
+
   @Override
+  @SneakyThrows
   public ScanResponseV1 scan(MultipartFile file) {
-    // var options = ClamAvOptions.builder().host("host.docker.internal").port(3310).build();
-    // var clamAv = ClamAvClient.create(options);
+    var scanId = scanIdGenerator.get();
+    log.info("Starting scan {}", scanId);
     try {
       scanner.scan(file.getInputStream());
     } catch (VirusFound e) {
+      log.warn("Virus found for scan {}: {}", scanId, e.getMessage());
       return ScanResponseV1.builder()
-          .data(ScanResponseV1.Data.builder().virusFound(true).virusName(e.getMessage()).build())
+          .data(
+              ScanResponseV1.Data.builder()
+                  .scanId(scanId)
+                  .virusFound(true)
+                  .virusName(e.getMessage())
+                  .build())
           .build();
-    } catch (IOException e) {
-      throw new ScanFailed("Network error while reading submitted file", e);
     }
     return ScanResponseV1.builder()
-        .data(ScanResponseV1.Data.builder().virusFound(false).build())
+        .data(ScanResponseV1.Data.builder().scanId(scanId).virusFound(false).build())
         .build();
   }
 }

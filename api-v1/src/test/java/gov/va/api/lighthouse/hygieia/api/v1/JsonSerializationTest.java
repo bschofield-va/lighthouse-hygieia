@@ -13,7 +13,7 @@ public class JsonSerializationTest {
   static Stream<Arguments> roundTrip() {
     var data = V1Data.get();
     return Stream.of(
-            data.scanResponse(true, "EICAR")
+            data.scanResponse("fugazi", true, "EICAR")
             //
             )
         .map(o -> Arguments.of(o.getClass().getSimpleName(), o));

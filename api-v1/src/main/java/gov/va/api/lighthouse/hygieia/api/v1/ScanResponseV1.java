@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import com.fasterxml.jackson.annotation.JsonAutoDetect.Visibility;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 import lombok.Builder;
 import lombok.Value;
@@ -27,12 +28,23 @@ public class ScanResponseV1 {
       isGetterVisibility = JsonAutoDetect.Visibility.NONE)
   @Schema(
       name = "ScanResponseV1.Data",
-      requiredProperties = {"virusFound"})
+      requiredProperties = {"trackingId", "virusFound"})
   public static class Data {
+
     @Schema(
         description =
-            "If true, a virus has been found and additional information will be provided in the"
-                + " response.")
+            """
+            An ID that can be used to track the scan request if necessary.
+            """)
+    @NotEmpty
+    String scanId;
+
+    @Schema(
+        description =
+            """
+            If true, a virus has been found and additional information will be provided in the
+            response.
+            """)
     @NotNull
     boolean virusFound;
 

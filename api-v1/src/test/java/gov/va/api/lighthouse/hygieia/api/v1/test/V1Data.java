@@ -5,17 +5,22 @@ import lombok.NoArgsConstructor;
 
 @NoArgsConstructor(staticName = "get")
 public class V1Data {
-  public ScanResponseV1 scanResponse(boolean virusFound, String virusName) {
+  public ScanResponseV1 cleanScanResponse(String scanId) {
+    return scanResponse(scanId, false, null);
+  }
+
+  public ScanResponseV1 scanResponse(String scanId, boolean virusFound, String virusName) {
     return ScanResponseV1.builder()
-        .data(ScanResponseV1.Data.builder().virusFound(virusFound).virusName(virusName).build())
+        .data(
+            ScanResponseV1.Data.builder()
+                .scanId(scanId)
+                .virusFound(virusFound)
+                .virusName(virusName)
+                .build())
         .build();
   }
 
-  public ScanResponseV1 cleanScanResponse() {
-    return scanResponse(false, null);
-  }
-
-  public ScanResponseV1 virusFoundScanResponse(String virusName) {
-    return scanResponse(true, virusName);
+  public ScanResponseV1 virusFoundScanResponse(String scanId, String virusName) {
+    return scanResponse(scanId, true, virusName);
   }
 }

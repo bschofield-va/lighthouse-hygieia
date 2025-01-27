@@ -1,6 +1,7 @@
 package gov.va.api.lighthouse.hygieia.api.v1;
 
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -17,5 +18,7 @@ public interface ScannerV1Api extends V1Api {
   @PostMapping(
       path = {"/scanner"},
       consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-  ScanResponseV1 scan(@RequestParam(name = "file", required = true) MultipartFile file);
+  ScanResponseV1 scan(
+      @Parameter(description = "The file to scan.") @RequestParam(name = "file", required = true)
+          MultipartFile file);
 }

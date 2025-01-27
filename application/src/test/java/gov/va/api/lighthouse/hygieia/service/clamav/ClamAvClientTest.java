@@ -6,11 +6,15 @@ import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import gov.va.api.health.sentinel.configurablevalues.ConfigurableValues;
 import gov.va.api.lighthouse.hygieia.service.antivirus.VirusScanner.ScanFailed;
 import gov.va.api.lighthouse.hygieia.service.antivirus.VirusScanner.VirusFound;
+import gov.va.api.lighthouse.hygieia.service.clamav.ClamAvExceptions.ClamAvCommunicationException;
+import gov.va.api.lighthouse.hygieia.service.clamav.ClamAvExceptions.FailedToConnectToClamAvServer;
 import gov.va.api.lighthouse.hygieia.service.test.MockClamAv;
 import gov.va.api.lighthouse.hygieia.service.test.MockClamAv.Interaction;
 import java.io.ByteArrayInputStream;
 import java.nio.charset.StandardCharsets;
+import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.Future;
+import java.util.concurrent.TimeUnit;
 import lombok.SneakyThrows;
 import org.apache.hc.core5.concurrent.CompletedFuture;
 import org.junit.jupiter.api.AfterEach;
@@ -92,6 +96,52 @@ class ClamAvClientTest {
               assertThat(data).isEqualTo(payload);
             });
     scan(payload);
+    interaction.get();
+  }
+
+  @Test
+  @SneakyThrows
+  void scanConnectionDrops() {
+    /*
+     * This is potentially tricky. We want to kill the connection in one thread while the client is
+     * reading in another. To help ensure the time is correction, we'll wait in this (the client)
+     * thread until we _know_ the mock server is processing.
+     */
+    var latch = new CountDownLatch(1);
+    var interaction =
+        clamAvDoes(
+            session -> {
+              latch.countDown();
+              session.readNullTerminatedLine();
+              session.close();
+            });
+    latch.await(1, TimeUnit.SECONDS);
+    assertThatExceptionOfType(ClamAvCommunicationException.class)
+        .isThrownBy(() -> scan("all work and no play makes jack a dull boy".repeat(666 * 1000)));
+    interaction.get();
+  }
+
+  @Test
+  @SneakyThrows
+  void scanConnectionFailure() {
+    var options = ClamAvProperties.builder().hostname("not-a-hostname").port(666).build();
+    var clamAv = ClamAvClient.create(options);
+    var in = new ByteArrayInputStream("nope".getBytes(StandardCharsets.UTF_8));
+    assertThatExceptionOfType(FailedToConnectToClamAvServer.class)
+        .isThrownBy(() -> clamAv.scan(in));
+  }
+
+  @Test
+  @SneakyThrows
+  void scanFailed() {
+    var interaction =
+        clamAvDoes(
+            session -> {
+              session.readNullTerminatedLine();
+              session.readAllChunks();
+              session.writeNullTerminatedLine("INSTREAM fugazi problems ERROR");
+            });
+    assertThatExceptionOfType(ScanFailed.class).isThrownBy(() -> scan("this is a clean file"));
     interaction.get();
   }
 
