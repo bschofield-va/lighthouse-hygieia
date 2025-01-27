@@ -1,7 +1,5 @@
 package gov.va.api.lighthouse.hygieia.service.test;
 
-import static org.apache.commons.lang3.StringUtils.isNotEmpty;
-
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.Closeable;
@@ -10,15 +8,15 @@ import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.nio.charset.StandardCharsets;
+import java.time.Duration;
+import java.time.Instant;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
-import lombok.extern.slf4j.Slf4j;
 
-@Slf4j
 public class MockClamAv implements AutoCloseable {
   @Getter private final int port;
 
@@ -30,7 +28,6 @@ public class MockClamAv implements AutoCloseable {
     this.serverSocket = new ServerSocket(port);
     this.port = serverSocket.getLocalPort();
     executor = Executors.newSingleThreadExecutor();
-    log.info("Server running on {}", this.port);
   }
 
   static void closeQuietly(Closeable closeMe) {
@@ -42,6 +39,36 @@ public class MockClamAv implements AutoCloseable {
     } catch (IOException e) {
       /* ignore */
     }
+  }
+
+  @SneakyThrows
+  public static void main(String[] args) {
+    var maxRunDuration = Duration.parse(System.getProperty("mock-clamav.max-run-duration", "PT5M"));
+    var timeToDie = Instant.now().plus(maxRunDuration);
+    var clamAv = new MockClamAv(Integer.parseInt(System.getProperty("mock-clamav.port", "9998")));
+    System.out.println("Mock ClamAV started on port " + clamAv.port());
+    System.out.println("Self termination at " + timeToDie);
+    while (Instant.now().isBefore(timeToDie)) {
+      clamAv
+          .interact(
+              session -> {
+                var command = session.readNullTerminatedLine();
+                System.out.println("Command: " + command);
+                if (!command.startsWith("zINSTREAM")) {
+                  return;
+                }
+                var payload = session.readAllChunks();
+                if (payload.contains("EICAR")) {
+                  System.out.println("Fake virus found");
+                  session.writeNullTerminatedLine("stream: eicar-test-signature FOUND");
+                } else {
+                  session.writeNullTerminatedLine("stream: OK");
+                }
+              })
+          .get();
+    }
+    System.out.println("Goodbye, cruel world.");
+    clamAv.close();
   }
 
   @Override
@@ -85,7 +112,7 @@ public class MockClamAv implements AutoCloseable {
     public String readAllChunks() {
       var allChunks = new StringBuilder();
       var chunk = readChunk();
-      while (isNotEmpty(chunk)) {
+      while (!chunk.isEmpty()) {
         allChunks.append(chunk);
         chunk = readChunk();
       }

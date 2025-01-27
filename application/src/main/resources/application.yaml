@@ -13,6 +13,11 @@ spring:
   web:
     resources:
       add-mappings: false
+  servlet:
+    multipart:
+      max-file-size: 3GB
+      max-request-size: 3GB
+
 
 springdoc:
   api-docs:

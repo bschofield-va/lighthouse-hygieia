@@ -1,0 +1,13 @@
+server:
+  port: 9999
+
+encryption-service:
+  key: disabled
+
+hygieia:
+    internal:
+        client-keys: disabled
+
+clamav:
+  hostname: localhost
+  port: 9998
