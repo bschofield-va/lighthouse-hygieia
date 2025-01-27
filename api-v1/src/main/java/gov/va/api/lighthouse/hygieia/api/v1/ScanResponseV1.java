@@ -35,7 +35,8 @@ public class ScanResponseV1 {
         description =
             """
             An ID that can be used to track the scan request if necessary.
-            """)
+            """,
+        example = "DE6F05-0CA245-88-2025-01-21T07:57:00Z")
     @NotEmpty
     String scanId;
 

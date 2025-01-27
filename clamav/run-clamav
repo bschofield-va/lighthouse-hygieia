@@ -1,0 +1,59 @@
+#!/usr/bin/env bash
+set -euo pipefail
+set -x
+
+cd $(dirname $(readlink -f $0))
+
+: ${CLAM_VERSION:=1.0}
+: ${CLAM_IMAGE:=clamav/clamav:$CLAM_VERSION}
+: ${CLAM_CONTAINER_NAME:=clamav}
+
+main() {
+  killRunningContainer
+  docker run \
+    $(platformOption) \
+    --name $CLAM_CONTAINER_NAME \
+    --rm \
+    -d \
+    $(customClamdConfOption) \
+    -e CLAMAV_NO_FRESHCLAMD=true \
+    -e CLAMAV_NO_MILTERD=true \
+    -p 3310:3310 \
+    $CLAM_IMAGE
+  docker logs -f $CLAM_CONTAINER_NAME
+}
+
+killRunningContainer() {
+  local containerId
+  while true
+  do
+    containerId=$(docker ps --filter Name=$CLAM_CONTAINER_NAME -q)
+    if [ -z "${containerId:-}" ]; then return; fi
+    docker kill $containerId
+  done
+}
+
+customClamdConfOption() {
+  local clamdConf=$PWD/clamd.conf
+  if which fresnel-host-location > /dev/null 2>&1
+  then
+    clamdConf=$(fresnel-host-location $clamdConf)
+  fi
+  echo "-v ${clamdConf}:/etc/clamav/clamd.conf"
+}
+
+platformOption() {
+  local hostPlatform
+  if which fresnel-host-command > /dev/null 2>&1
+  then
+    hostPlatform=$(fresnel-host-command uname -s -m)
+  else
+    hostPlatform=$(uname -s -m)
+  fi
+  if [ "{$hostPlatform:-}" == "Darwin arm64" ]
+  then
+    echo "--platform linux/amd64"
+  fi
+}
+
+main $@
