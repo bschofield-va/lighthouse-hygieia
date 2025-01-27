@@ -115,6 +115,26 @@
         <version>${process-exec-maven-plugin.version}</version>
         <executions>
           <execution>
+            <id>mock-clamav-process</id>
+            <phase>pre-integration-test</phase>
+            <goals>
+              <goal>start</goal>
+            </goals>
+            <configuration>
+              <name>hygieia</name>
+              <skip>${sentinel.skipLaunch}</skip>
+              <processLogFile>${project.build.directory}/mock-clamav.log</processLogFile>
+              <waitAfterLaunch>1</waitAfterLaunch>
+              <arguments>
+                <argument>java</argument>
+                <argument>-cp</argument>
+                <argument>hygieia-tests.jar</argument>
+                <argument>-Dmock-clamav.port=9998</argument>
+                <argument>gov.va.api.lighthouse.hygieia.service.test.MockClamAv</argument>
+              </arguments>
+            </configuration>
+          </execution>
+          <execution>
             <id>hygieia-process</id>
             <phase>pre-integration-test</phase>
             <goals>
@@ -125,7 +145,7 @@
               <healthcheckUrl>http://localhost:9999/hygieia/v1/actuator/health</healthcheckUrl>
               <skip>${sentinel.skipLaunch}</skip>
               <processLogFile>${project.build.directory}/hygieia.log</processLogFile>
-              <waitAfterLaunch>60</waitAfterLaunch>
+              <waitAfterLaunch>30</waitAfterLaunch>
               <arguments>
                 <argument>java</argument>
                 <argument>-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=5090</argument>
@@ -136,26 +156,6 @@
                 <argument>-Dlogging.level.root=INFO</argument>
                 <argument>org.springframework.boot.loader.launch.PropertiesLauncher</argument>
                 <argument>--spring.profiles.active=it</argument>
-              </arguments>
-            </configuration>
-          </execution>
-          <execution>
-            <id>mock-clamav-process</id>
-            <phase>pre-integration-test</phase>
-            <goals>
-              <goal>start</goal>
-            </goals>
-            <configuration>
-              <name>hygieia</name>
-              <skip>${sentinel.skipLaunch}</skip>
-              <processLogFile>${project.build.directory}/mock-clamav.log</processLogFile>
-              <waitAfterLaunch>10</waitAfterLaunch>
-              <arguments>
-                <argument>java</argument>
-                <argument>-cp</argument>
-                <argument>hygieia-tests.jar</argument>
-                <argument>-Dmock-clamav.port=9998</argument>
-                <argument>gov.va.api.lighthouse.hygieia.service.test.MockClamAv</argument>
               </arguments>
             </configuration>
           </execution>

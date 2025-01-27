@@ -1,6 +1,10 @@
 #!/usr/bin/env bash
 set -euo pipefail
-set -x
+
+#
+# Run ClamAV container locally.
+# Supports MacOS arm processors by forcing x86 architure for ClamAV container.
+#
 
 cd $(dirname $(readlink -f $0))
 
