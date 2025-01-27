@@ -1,0 +1,7 @@
+#
+# fresnel profile
+#
+spring:
+  config:
+    import:
+      - application-h2.yaml

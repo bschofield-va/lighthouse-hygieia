@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<FindBugsFilter>
+  <!--
+    ClamAV doesn't support SSL.
+  -->
+  <Match>
+    <Class name="gov.va.api.lighthouse.hygieia.service.clamav.ClamAvClient$Connection"/>
+    <Bug pattern="UNENCRYPTED_SOCKET"/>
+  </Match>
+
+  <!--
+    We do not use cookie based authentication with this API.
+  -->
+  <Match>
+    <Class name="gov.va.api.lighthouse.hygieia.service.config.WebSecurityConfig"/>
+    <Bug pattern="SPRING_CSRF_PROTECTION_DISABLED"/>
+  </Match>
+  <!--
+  These are spring properties that are used to populate an openapi spec.
+  If the mutable values change it only changes the resulting document, not the overall flow of the application.
+  -->
+  <Match>
+    <Class name="gov.va.api.lighthouse.hygieia.service.config.OpenApiProperties$ApiDetails"/>
+    <Bug pattern="EI_EXPOSE_REP2"/>
+  </Match>
+  <!--
+  Keystore/Truststores are configured by the application properties and do not change.
+  -->
+  <Match>
+    <Class name="gov.va.api.lighthouse.hygieia.service.requestdispatch.RestfulRequestDispatchService"/>
+    <Bug pattern="URLCONNECTION_SSRF_FD"/>
+  </Match>
+</FindBugsFilter>

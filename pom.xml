@@ -17,11 +17,8 @@
   <modules>
     <module>dependencies</module>
     <module>api-errors</module>
-    <!--
     <module>api-v1</module>
-    <module>persistence</module>
     <module>application</module>
     <module>integration-tests</module>
-    -->
   </modules>
 </project>

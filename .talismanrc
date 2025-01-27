@@ -1,4 +1,16 @@
+version: "1.0"
 fileignoreconfig:
 - filename: .github/workflows/daedalus.yml
   checksum: d0df9468a2530cedbcdce461207a76e92419988f755eaed77deb01fb09deb959
-version: "1.0"
+- filename: application/src/main/java/gov/va/api/lighthouse/hygieia/service/config/OpenApiConfig.java
+  checksum: b4304eac6fc9096446b9df8b0039f59864708072c1eb6cc981b77135d2453013
+- filename: application/config/application-dev.yaml
+  checksum: 71003a3b464b3d559cc4d1680a0ad12039fc1fb7eb804802d130498eca145ebe
+- filename: application/src/test/java/gov/va/api/lighthouse/hygieia/service/config/encryption/EncryptionPropertiesTest.java
+  checksum: 36f97bccdfa2a624f7e46380a74d758b5edc3119a27e2fcfc43b3b4f0b4a1b95
+- filename: application/src/test/java/gov/va/api/lighthouse/hygieia/service/AllTheMarblesTest.java
+  checksum: 1f69e0d60fa13af306f663c9994dabe2c307a684fa0c304a013b2c4ab2929109
+- filename: application/src/test/resources/application-marbles.yaml
+  checksum: e698198cf7ff757e0e4ae95eba36c34534321e2bbfadc0f87483844c3ce7ccb0
+- filename: integration-tests/src/test/resources/application-it.yaml
+  checksum: 65846babad09bc38a65e90dcac5bc8ce2caa0d8b25defbb9364983042c8ceec7

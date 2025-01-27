@@ -1,0 +1,14 @@
+encryption-service:
+  key: disabled
+
+hygieia:
+  admin-key: admin-key
+  internal:
+    client-keys: test-client-key
+
+open-api:
+  v1:
+    security-scheme:
+      type: APIKEY
+      in: HEADER
+      name: client-key
