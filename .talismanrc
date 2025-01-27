@@ -1,3 +1,4 @@
+version: "1.0"
 fileignoreconfig:
 - filename: .github/workflows/daedalus.yml
   checksum: d0df9468a2530cedbcdce461207a76e92419988f755eaed77deb01fb09deb959
@@ -11,4 +12,5 @@ fileignoreconfig:
   checksum: 1f69e0d60fa13af306f663c9994dabe2c307a684fa0c304a013b2c4ab2929109
 - filename: application/src/test/resources/application-marbles.yaml
   checksum: e698198cf7ff757e0e4ae95eba36c34534321e2bbfadc0f87483844c3ce7ccb0
-version: "1.0"
+- filename: integration-tests/src/test/resources/application-it.yaml
+  checksum: 65846babad09bc38a65e90dcac5bc8ce2caa0d8b25defbb9364983042c8ceec7
